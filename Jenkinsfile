@@ -6,9 +6,10 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
         // Assume EC2 SSH Key ID is 'aws-ec2-key'
         EC2_SSH_KEY = credentials('aws-ec2-key')
-        EC2_USER = 'ubuntu' // Change this based on AMI
-        EC2_HOST = '3.107.21.198' // Change this to your Elastic IP
-        DOCKER_IMAGE = 'anixan/payment-gui:latest'
+        EC2_USER = 'ubuntu'
+        EC2_HOST = '3.107.21.198'
+        GUI_IMAGE = 'anixan/payment-gui:latest'
+        API_IMAGE = 'anixan/payment-api:latest'
     }
 
     stages {
@@ -22,7 +23,10 @@ pipeline {
             steps {
                 script {
                     echo "Building Payment GUI Image..."
-                    sh "docker build -t ${DOCKER_IMAGE} ./gui"
+                    sh "docker build -t ${GUI_IMAGE} ./gui"
+
+                    echo "Building Payment API Image..."
+                    sh "docker build -t ${API_IMAGE} ./payment_api"
                 }
             }
         }
@@ -33,8 +37,11 @@ pipeline {
                     echo "Logging into Docker Hub..."
                     sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
                     
-                    echo "Pushing Image..."
-                    sh "docker push ${DOCKER_IMAGE}"
+                    echo "Pushing GUI Image..."
+                    sh "docker push ${GUI_IMAGE}"
+
+                    echo "Pushing API Image..."
+                    sh "docker push ${API_IMAGE}"
                 }
             }
         }

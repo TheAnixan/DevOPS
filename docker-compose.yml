@@ -12,8 +12,7 @@ services:
       - payment-net
 
   payment-api:
-    build:
-      context: ./payment_api
+    image: anixan/payment-api:latest
     container_name: payment-api
     ports:
       - "8080:8080"
@@ -25,8 +24,7 @@ services:
       - payment-net
 
   payment-gui:
-    build:
-      context: ./gui
+    image: anixan/payment-gui:latest
     container_name: payment-gui
     ports:
       - "5000:5000"
