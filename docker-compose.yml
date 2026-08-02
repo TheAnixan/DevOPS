@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - payment-net
+
+  payment-api:
+    build:
+      context: ./payment_api
+    container_name: payment-api
+    ports:
+      - "8080:8080"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/paymentdb
+    depends_on:
+      - mongodb
+    networks:
+      - payment-net
+
+  payment-gui:
+    build:
+      context: ./gui
+    container_name: payment-gui
+    ports:
+      - "5000:5000"
+    environment:
+      - PAYMENT_API_URL=http://payment-api:8080/api/payments
+    depends_on:
+      - payment-api
+    networks:
+      - payment-net
+
+networks:
+  payment-net:
+    driver: bridge
+
+volumes:
+  mongo_data:
