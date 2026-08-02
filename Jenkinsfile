@@ -54,11 +54,14 @@ pipeline {
                     
                     // The ssh-agent plugin is used here to load the PPK/PEM key securely
                     sshagent(credentials: ['aws-ec2-key']) {
+                        // Ensure app directory exists on the remote server
+                        sh "ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} 'mkdir -p ~/app'"
+
                         // Copy the docker-compose file
                         sh "scp -o StrictHostKeyChecking=no docker-compose.yml ${EC2_USER}@${EC2_HOST}:~/app/docker-compose.yml"
                         
                         // Execute docker-compose up on the server
-                        sh "ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} 'cd ~/app && docker-compose pull && docker-compose up -d'"
+                        sh "ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} 'cd ~/app && sudo docker compose pull && sudo docker compose up -d'"
                     }
                 }
             }
